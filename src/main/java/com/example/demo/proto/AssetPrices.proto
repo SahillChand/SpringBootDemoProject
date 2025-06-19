@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package com.example.demo.protos;
+
+import "google/protobuf/timestamp.proto";
+
+option java_multiple_files = true;
+option java_package = "com.example.demo.protos";
+
+message AssetPricesProto {
+    optional string asset = 1;
+    optional double ask = 2;
+    optional double bid = 3;
+    optional string weight_unit = 4;
+    optional google.protobuf.Timestamp last_updated = 5;
+}
