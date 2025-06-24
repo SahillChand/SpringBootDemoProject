@@ -9,6 +9,14 @@ public class Statics {
                SELECT * FROM customers
                WHERE username=?
             """;
+
+    private final String fetchBalanceSQL=
+            """
+                SELECT balance FROM customers
+                WHERE username = ?
+            """;
+
+
     private final String addCustomer=
         """
             INSERT INTO customers VALUES (?,?,?)
@@ -22,15 +30,22 @@ public class Statics {
     private final String updateBalance=
     """
         UPDATE customers
+        SET balance = balance - ?
+        WHERE username= ?
+    """;
+
+    private final String updateCustomerBalance=
+    """
+        UPDATE customers
         SET balance = ?
-        WHERE username=?
+        WHERE username = ?
     """;
 
     private final String updateAssetPrice=
     """
         UPDATE asset_prices
         SET ask=? ,bid=?, last_updated=?
-        WHERE asset=?
+        WHERE asset = ? AND currency = ? AND weight_unit = ?
     """;
 
     private final String currentSilverPriceUrl="https://goldbroker.com/api/spot-price?metal=XAG&currency=INR&weight_unit=g";
@@ -43,10 +58,44 @@ public class Statics {
         WHERE asset=?
     """;
 
+    private final String fetchCurrentRateSQL=
+            """
+               SELECT ask FROM asset_prices
+               WHERE asset = ? AND currency = ? AND weight_unit = ?
+            """;
+
+    private final String updateUserDetailsSQL=
+            """
+                UPDATE asset_details
+                SET quantity_in_gm = quantity_in_gm + ? ,asset_value = asset_value + ?
+                where username = ? AND asset = ?
+            """;
+
+    private final String addCustomerToAssetDetails=
+            """
+                INSERT INTO asset_details
+                VALUES(?,?,0,0)
+            """;
+
+    private final String addCustomerToAuthorities=
+            """
+                INSERT INTO authorities
+                VALUES(?,"ROLE_EMPLOYEE")
+            """;
+
+    private final String fetchAvailableAssetQuantity=
+            """
+                SELECT quantity_in_gm FROM asset_details
+                WHERE username = ? AND asset = ?
+            """;
+
     public String getAskValue() {
         return askValue;
     }
 
+    public String getFetchBalanceSQL() {
+        return fetchBalanceSQL;
+    }
     public String getCurrentGoldPriceUrl() {
         return currentGoldPriceUrl;
     }
@@ -72,5 +121,29 @@ public class Statics {
 
     public String getCustomers(){
         return getCustomers;
+    }
+
+    public String getFetchCurrentRateSQL() {
+        return fetchCurrentRateSQL;
+    }
+
+    public String getUpdateUserDetailsSQL() {
+        return updateUserDetailsSQL;
+    }
+
+    public String getFetchAvailableAssetQuantity() {
+        return fetchAvailableAssetQuantity;
+    }
+
+    public String getAddCustomerToAssetDetails() {
+        return addCustomerToAssetDetails;
+    }
+
+    public String getAddCustomerToAuthorities() {
+        return addCustomerToAuthorities;
+    }
+
+    public String getUpdateCustomerBalance() {
+        return updateCustomerBalance;
     }
 }

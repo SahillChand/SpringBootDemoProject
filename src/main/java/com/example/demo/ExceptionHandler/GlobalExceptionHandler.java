@@ -36,4 +36,9 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<String>(ex.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
         //show path of error occurred as well;
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleAnyException(Exception ex){
+        return new ResponseEntity<String>(ex.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }

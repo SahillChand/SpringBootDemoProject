@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package com.example.demo.protos;
+
+option java_multiple_files = true;
+option java_outer_classname = "SignupResponseDTOOuterClass";
+option java_package = "com.example.demo.protos";
+
+message SignupResponseDTO {
+  optional string username = 1;
+  optional string password = 2;
+  optional double balance = 3;
+  optional string successMessage = 4;
+}

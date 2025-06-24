@@ -2,8 +2,9 @@ package com.example.demo.Dao;
 
 import java.sql.*;
 
-import com.example.demo.Model.Trade;
 import com.example.demo.Static.Statics;
+import com.example.demo.Model.RealPricesRecord;
+import com.example.demo.protos.AssetTradeRequestEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -41,19 +42,50 @@ public class AssetPricesRepo {
         return current_Ask_Value;
     }
 
-    public int updateAssetPrice(AssetPrices assetPrices) throws Exception{
+    public int updateAssetPrice(RealPricesRecord realPricesRecord, String asset, String currency, String weight_unit){
         String sql=statics.getUpdateAssetPrice();
-        Connection con = DriverManager.getConnection(url, dbUsername, dbPassword);
-        PreparedStatement preparedStatement =con.prepareStatement(sql);
-        preparedStatement.setDouble(1,assetPrices.getAsk());
-        preparedStatement.setDouble(2,assetPrices.getBid());
-        preparedStatement.setTimestamp(3,new Timestamp(System.currentTimeMillis()));
-        preparedStatement.setString(4,assetPrices.getAsset());
-        int result = preparedStatement.executeUpdate();
-        return result;
+        try {
+            Connection con = DriverManager.getConnection(url, dbUsername, dbPassword);
+            PreparedStatement preparedStatement = con.prepareStatement(sql);
+            preparedStatement.setDouble(1, realPricesRecord.getAsk());
+            preparedStatement.setDouble(2, realPricesRecord.getBid());
+            preparedStatement.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
+            if(asset.equals("XAU"))
+                preparedStatement.setString(4, "GOLD");
+            else if(asset.equals("XAG"))
+                preparedStatement.setString(4, "SILVER");
+            preparedStatement.setString(5, currency);
+            preparedStatement.setString(6, weight_unit);
+            int result = preparedStatement.executeUpdate();
+            return result;
+        }
+        catch(SQLException ex){
+            System.out.println(ex.getMessage());
+            return -1;
+        }
     }
 
-    public void buyAsset(Trade trade){
-
+    public double fetchCurrentRate(AssetTradeRequestEntity assetTradeRequestEntity){
+        String sql=statics.getFetchCurrentRateSQL();
+        try {
+            Connection con = DriverManager.getConnection(url, dbUsername, dbPassword);
+            PreparedStatement preparedStatement = con.prepareStatement(sql);
+            if(assetTradeRequestEntity.getAsset().equals("XAU"))
+                preparedStatement.setString(1,"GOLD");
+            else if(assetTradeRequestEntity.getAsset().equals("XAG"))
+                preparedStatement.setString(1,"SILVER");
+            preparedStatement.setString(2,assetTradeRequestEntity.getCurrency());
+            preparedStatement.setString(3,assetTradeRequestEntity.getWeightUnit());
+            ResultSet resultSet = preparedStatement.executeQuery();
+            Double current_Ask_Value = 0D;
+            while (resultSet.next()) {
+                current_Ask_Value = resultSet.getDouble(1);
+            }
+            return current_Ask_Value;
+        }
+        catch(SQLException ex){
+            System.out.println(ex.getMessage());
+            return 0;
+        }
     }
 }

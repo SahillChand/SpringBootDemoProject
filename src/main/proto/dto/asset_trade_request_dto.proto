@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package com.example.demo.protos;
+
+option java_multiple_files = true;
+option java_outer_classname = "AssetTradeRequestDTOOuterClass";
+option java_package = "com.example.demo.protos";
+
+message AssetTradeRequestDTO {
+  optional string asset = 1;
+  optional string currency = 2;
+  optional string weight_unit = 3;
+  optional double quantity = 4;
+}

@@ -1,30 +1,21 @@
 package com.example.demo.Service;
 
-import com.example.demo.Dao.Customer;
-import com.example.demo.Dao.CustomerRepo;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import com.example.demo.protos.SignupRequestDTO;
+import com.example.demo.protos.SignupRequestEntity;
+import com.example.demo.protos.SignupResponseDTO;
+import com.example.demo.protos.UpdateBalanceRequestDTO;
 
-@Service
-public class CustomerService {
+public interface CustomerService {
 
-    //perform validations.
-    @Autowired
-    private CustomerRepo ctRepo;
+    //To fetch existing customer.
+    public SignupRequestEntity fetchCustomer(String username);
 
-    public Customer getCustomer(String username) throws Exception{
-        return ctRepo.getCustomer(username);
-    }
+    //To add New Customer
+    public SignupResponseDTO addCustomer(SignupRequestDTO signupRequestDTO) throws Exception;
 
-    public int addCustomer(Customer customer){
-        return ctRepo.addCustomer(customer);
-    }
+    //To delete Customer if it exists
+    public int deleteCustomer(String username);
 
-    public int deleteCustomer(String username) throws Exception{
-        return ctRepo.deleteCustomer(username);
-    }
-
-    public int updateBalance(Customer customer) throws Exception{
-        return ctRepo.updateBalance(customer);
-    }
+    //To update balance of already existing customer.
+    public void updateBalance(UpdateBalanceRequestDTO updateBalanceRequestDTO);
 }

@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package com.example.demo.protos;
+
+option java_multiple_files = true;
+option java_outer_classname = "RealPricesRecordOuterClass";
+option java_package = "com.example.demo.protos";
+
+import "google/protobuf/timestamp.proto";
+
+message RealPricesRecord {
+  optional google.protobuf.Timestamp date = 1;
+  optional string weight_unit = 2;
+  optional double ask = 3;
+  optional double mid = 4;
+  optional double bid = 5;
+  optional double value = 6;
+  optional double performance = 7;
+}
