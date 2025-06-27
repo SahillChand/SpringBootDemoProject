@@ -26,7 +26,7 @@ public class AssetServiceImpl implements AssetService {
     public AssetTradeResponseDTO handleBuyService(AssetTradeRequestDTO assetTradeRequestDTO) throws Exception{
         LoggedInUserDetails loggedInUserDetails = new LoggedInUserDetails();
         AssetTradeRequestEntity assetTradeRequestEntity=AssetTradeRequestEntity.newBuilder().setAsset(assetTradeRequestDTO.getAsset()).setCurrency(assetTradeRequestDTO.getCurrency()).setWeightUnit(assetTradeRequestDTO.getWeightUnit()).build();
-        double current_asset_rate = assetPricesRepo.fetchCurrentRate(assetTradeRequestEntity);
+        double current_asset_rate = assetPricesRepo.fetchCurrentAskRate(assetTradeRequestEntity);
         double current_balance = customerRepo.fetchBalance(loggedInUserDetails.getCurrentLoggedInUsername());
         if(current_balance<current_asset_rate*assetTradeRequestDTO.getQuantity())
             throw new Exception("Insufficient Balance");
@@ -40,6 +40,8 @@ public class AssetServiceImpl implements AssetService {
                                                         .setAmountDeduct(current_asset_rate*assetTradeRequestDTO.getQuantity())
                                                                 .build();
 
+        if(assetTradeRequestDTO.getCurrency().equals("PKR"))
+            assetBuyRequestEntity=assetBuyRequestEntity.toBuilder().setAmountDeduct(assetBuyRequestEntity.getAmountDeduct()/3).build();
         handleBuyTrade(assetBuyRequestEntity);
         return null;
     }
@@ -57,7 +59,8 @@ public class AssetServiceImpl implements AssetService {
 
         customerRepo.updateBalance(updateBalanceRequestEntity);
         //Update user_details
-
+        if(assetBuyRequestEntity.getWeightUnit().equals("kg"))
+            assetBuyRequestEntity=AssetBuyRequestEntity.newBuilder().setAsset(assetBuyRequestEntity.getAsset()).setCurrency(assetBuyRequestEntity.getCurrency()).setWeightUnit(assetBuyRequestEntity.getWeightUnit()).setUsername(assetBuyRequestEntity.getUsername()).setWeightGain(1000*assetBuyRequestEntity.getWeightGain()).setAmountDeduct(assetBuyRequestEntity.getAmountDeduct()).build();
         assetDetailsRepo.updateDetails(assetBuyRequestEntity);
     }
 
@@ -65,12 +68,21 @@ public class AssetServiceImpl implements AssetService {
     public AssetTradeResponseDTO handleSellService(AssetTradeRequestDTO assetTradeRequestDTO) throws Exception {
         LoggedInUserDetails loggedInUserDetails = new LoggedInUserDetails();
         AssetTradeRequestEntity assetTradeRequestEntity=AssetTradeRequestEntity.newBuilder().setAsset(assetTradeRequestDTO.getAsset()).setCurrency(assetTradeRequestDTO.getCurrency()).setWeightUnit(assetTradeRequestDTO.getWeightUnit()).build();
-        double current_asset_rate = assetPricesRepo.fetchCurrentRate(assetTradeRequestEntity);
+        double current_asset_rate = assetPricesRepo.fetchCurrentBidRate(assetTradeRequestEntity);
         double available_amount = assetDetailsRepo.fetchAvailableAssetQuantity(loggedInUserDetails.getCurrentLoggedInUsername(),assetTradeRequestDTO.getAsset());
-        System.out.println(available_amount+" "+assetTradeRequestDTO.getQuantity());
+
+        //Normalize data
+        if(assetTradeRequestDTO.getWeightUnit().equals("kg"))
+            assetTradeRequestDTO=assetTradeRequestDTO.toBuilder().setQuantity(1000*assetTradeRequestDTO.getQuantity()).build();
+
         if(available_amount<assetTradeRequestDTO.getQuantity())
             throw new Exception("Insufficient Balance");
         AssetBuyRequestEntity assetBuyRequestEntity = AssetBuyRequestEntity.newBuilder().setAsset(assetTradeRequestDTO.getAsset()).setCurrency(assetTradeRequestDTO.getCurrency()).setWeightUnit(assetTradeRequestDTO.getWeightUnit()).setUsername(loggedInUserDetails.getCurrentLoggedInUsername()).setWeightGain(-1*assetTradeRequestDTO.getQuantity()).setAmountDeduct(-1*current_asset_rate*assetTradeRequestDTO.getQuantity()).build();
+
+        //PKR to INR normalization
+        if(assetTradeRequestDTO.getCurrency().equals("PKR"))
+            assetBuyRequestEntity=assetBuyRequestEntity.toBuilder().setAmountDeduct(assetBuyRequestEntity.getAmountDeduct()/3).build();
+
         handleSellTrade(assetBuyRequestEntity);
         return null;
     }

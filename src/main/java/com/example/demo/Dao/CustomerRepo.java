@@ -3,7 +3,6 @@ package com.example.demo.Dao;
 import com.example.demo.Static.Statics;
 import com.example.demo.protos.SignupRequestEntity;
 import com.example.demo.protos.SignupResponseDTO;
-import com.example.demo.protos.UpdateBalanceRequestDTO;
 import com.example.demo.protos.UpdateBalanceRequestEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,6 +45,10 @@ public class CustomerRepo {
                         .setBalance(resultSet.getDouble("balance"))
                         .build();
             }
+            if(signupRequestEntity==null){
+                System.out.println("User Not Found");
+            }
+            preparedStatement.close();
             con.close();
             return signupRequestEntity;
         }
@@ -67,6 +70,7 @@ public class CustomerRepo {
             while (resultSet.next()) {
                 current_balance = resultSet.getDouble(1);
             }
+            preparedStatement.close();
             con.close();
             return current_balance;
         }
@@ -76,7 +80,7 @@ public class CustomerRepo {
         }
     }
 
-    public SignupResponseDTO addCustomer(SignupRequestEntity signupRequestEntity){
+    public SignupResponseDTO addCustomer(SignupRequestEntity signupRequestEntity) throws Exception{
 
         String sql= statics.getAddCustomer();
         try{
@@ -89,6 +93,8 @@ public class CustomerRepo {
             SignupResponseDTO signupResponseDTO=null;
             SignupRequestEntity current_Customer=fetchCustomer(signupRequestEntity.getUsername());
             signupResponseDTO=SignupResponseDTO.newBuilder().setUsername(current_Customer.getUsername()).setPassword(current_Customer.getPassword()).setBalance(current_Customer.getBalance()).setSuccessMessage("Customer Created Successfully").build();
+            preparedStatement.close();
+            con.close();
             return signupResponseDTO;
         }
         catch (SQLException e) {
@@ -105,6 +111,8 @@ public class CustomerRepo {
             PreparedStatement preparedStatement = con.prepareStatement(sql);
             preparedStatement.setString(1, username);
             int result = preparedStatement.executeUpdate();
+            preparedStatement.close();
+            con.close();
             return result;
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
@@ -121,6 +129,8 @@ public class CustomerRepo {
             preparedStatement.setDouble(1, updateBalanceRequestEntity.getBalance());
             preparedStatement.setString(2, updateBalanceRequestEntity.getUsername());
             int result = preparedStatement.executeUpdate();
+            preparedStatement.close();
+            con.close();
             return result;
         }
         catch (SQLException ex){
@@ -138,6 +148,8 @@ public class CustomerRepo {
             preparedStatement.setDouble(1, updateBalanceRequestEntity.getBalance());
             preparedStatement.setString(2, updateBalanceRequestEntity.getUsername());
             int result = preparedStatement.executeUpdate();
+            preparedStatement.close();
+            con.close();
             return result;
         }
         catch (SQLException ex){

@@ -5,12 +5,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 public class LoggedInUserDetails {
 
-    public String getCurrentLoggedInUsername(){
+    public static String getCurrentLoggedInUsername(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication.getName();
     }
 
-    public Object getCurrentLoggedInDetails(){
+    public static Object getCurrentLoggedInDetails(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication.getDetails();
     }

@@ -64,6 +64,11 @@ public class Statics {
                WHERE asset = ? AND currency = ? AND weight_unit = ?
             """;
 
+    private final String fetchCurrentBidRateSQL=
+            """
+                SELECT bid FROM asset_prices
+                WHERE asset = ? AND currency = ? AND weight_unit = ?
+            """;
     private final String updateUserDetailsSQL=
             """
                 UPDATE asset_details
@@ -96,9 +101,11 @@ public class Statics {
     public String getFetchBalanceSQL() {
         return fetchBalanceSQL;
     }
+
     public String getCurrentGoldPriceUrl() {
         return currentGoldPriceUrl;
     }
+
     public String getCurrentSilverPriceUrl(){
         return currentSilverPriceUrl;
     }
@@ -145,5 +152,9 @@ public class Statics {
 
     public String getUpdateCustomerBalance() {
         return updateCustomerBalance;
+    }
+
+    public String getFetchCurrentBidRateSQL() {
+        return fetchCurrentBidRateSQL;
     }
 }

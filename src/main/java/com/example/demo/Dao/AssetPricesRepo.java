@@ -34,11 +34,12 @@ public class AssetPricesRepo {
         PreparedStatement preparedStatement =con.prepareStatement(sql);
         preparedStatement.setString(1,asset);
         ResultSet resultSet = preparedStatement.executeQuery();
-        Double current_Ask_Value=0D;
+        double current_Ask_Value=0D;
         while(resultSet.next()){
             current_Ask_Value=resultSet.getDouble(1);
         }
-        System.out.println(current_Ask_Value);
+        preparedStatement.close();
+        con.close();
         return current_Ask_Value;
     }
 
@@ -57,6 +58,8 @@ public class AssetPricesRepo {
             preparedStatement.setString(5, currency);
             preparedStatement.setString(6, weight_unit);
             int result = preparedStatement.executeUpdate();
+            preparedStatement.close();
+            con.close();
             return result;
         }
         catch(SQLException ex){
@@ -65,7 +68,7 @@ public class AssetPricesRepo {
         }
     }
 
-    public double fetchCurrentRate(AssetTradeRequestEntity assetTradeRequestEntity){
+    public double fetchCurrentAskRate(AssetTradeRequestEntity assetTradeRequestEntity){
         String sql=statics.getFetchCurrentRateSQL();
         try {
             Connection con = DriverManager.getConnection(url, dbUsername, dbPassword);
@@ -77,11 +80,39 @@ public class AssetPricesRepo {
             preparedStatement.setString(2,assetTradeRequestEntity.getCurrency());
             preparedStatement.setString(3,assetTradeRequestEntity.getWeightUnit());
             ResultSet resultSet = preparedStatement.executeQuery();
-            Double current_Ask_Value = 0D;
+            double current_Ask_Value = 0D;
             while (resultSet.next()) {
                 current_Ask_Value = resultSet.getDouble(1);
             }
+            preparedStatement.close();
+            con.close();
             return current_Ask_Value;
+        }
+        catch(SQLException ex){
+            System.out.println(ex.getMessage());
+            return 0;
+        }
+    }
+
+    public double fetchCurrentBidRate(AssetTradeRequestEntity assetTradeRequestEntity){
+        String sql=statics.getFetchCurrentBidRateSQL();
+        try {
+            Connection con = DriverManager.getConnection(url, dbUsername, dbPassword);
+            PreparedStatement preparedStatement = con.prepareStatement(sql);
+            if(assetTradeRequestEntity.getAsset().equals("XAU"))
+                preparedStatement.setString(1,"GOLD");
+            else if(assetTradeRequestEntity.getAsset().equals("XAG"))
+                preparedStatement.setString(1,"SILVER");
+            preparedStatement.setString(2,assetTradeRequestEntity.getCurrency());
+            preparedStatement.setString(3,assetTradeRequestEntity.getWeightUnit());
+            ResultSet resultSet = preparedStatement.executeQuery();
+            double current_Bid_Value = 0;
+            while (resultSet.next()) {
+                current_Bid_Value = resultSet.getDouble(1);
+            }
+            preparedStatement.close();
+            con.close();
+            return current_Bid_Value;
         }
         catch(SQLException ex){
             System.out.println(ex.getMessage());
